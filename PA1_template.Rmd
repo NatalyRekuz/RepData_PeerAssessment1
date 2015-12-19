@@ -10,7 +10,7 @@ output:
 
 Load and unzip the data
 
-```{r}
+```{r, echo = TRUE}
 setwd("D:/Coursera/RepRes/RepData_PeerAssessment1")
 unzip("activity.zip")
 data <- read.csv("activity.csv")
@@ -18,7 +18,7 @@ data <- read.csv("activity.csv")
 
 Remove file activity.csv after reading the data
 
-```{r}
+```{r, echo = TRUE}
 file.remove("activity.csv")
 
 library(dplyr)
@@ -30,7 +30,7 @@ glimpse(data)
 
 Transform the data into a format suitable for my analysis
 
-```{r}
+```{r, echo = TRUE}
 data$date <- as.Date(data$date)
 data$interval <- sprintf("%04d", data$interval)
 data$interval <- format(strptime(data$interval, format = "%H%M"), 
@@ -43,7 +43,7 @@ data$interval <- format(strptime(data$interval, format = "%H%M"),
 
 1. Calculate the total number of steps taken per day
 
-```{r}
+```{r, echo = TRUE}
 dataSteps <- data %>%
     group_by(date) %>%
     summarise(totalSteps = sum(steps))
@@ -51,7 +51,7 @@ dataSteps <- data %>%
 
 2. Make a histogram of the total number of steps taken each day
 
-```{r}
+```{r, echo = TRUE}
 ggplot(dataSteps, aes(x = totalSteps)) +
     geom_histogram(binwidth = 1500, aes(fill = ..count..)) +
     scale_fill_continuous(name = "Frequency") +
@@ -64,7 +64,7 @@ ggplot(dataSteps, aes(x = totalSteps)) +
 3. Calculate and report the mean and median of the total number of steps 
 taken per day
 
-```{r}
+```{r, echo = TRUE}
 dataSteps_m <- dataSteps %>% 
     summarise(meanSteps = mean(totalSteps, na.rm = TRUE), 
               medianSteps = median(totalSteps, na.rm = TRUE))
@@ -78,7 +78,7 @@ print(dataSteps_m)
 1. Make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis)
 and the average number of steps taken, averaged across all days (y-axis)
 
-```{r}
+```{r, echo = TRUE}
 dataDaily <- data %>%
     group_by(interval) %>%
     summarise(avgTotalNSteps = mean(steps, na.rm = TRUE))
@@ -97,7 +97,7 @@ ggplot(dataDaily, aes(x = interval, y = avgTotalNSteps)) +
 2. Which 5-minute interval, on average across all the days in the dataset, 
 contains the maximum number of steps?
 
-```{r}
+```{r, echo = TRUE}
 dataDaily %>% filter(avgTotalNSteps == max(avgTotalNSteps))
 ```
 
@@ -108,7 +108,7 @@ dataDaily %>% filter(avgTotalNSteps == max(avgTotalNSteps))
 1. Calculate and report the total number of missing values in the dataset 
 (i.e. the total number of rows with NAs)
 
-```{r}
+```{r, echo = TRUE}
 sum(is.na(data))
 sum(is.na(data$steps))
 ```
@@ -116,7 +116,7 @@ sum(is.na(data$steps))
 2. Devise a strategy for filling in all of the missing values in the dataset. 
 I've used the mean for that 5-minute interval
 
-```{r}
+```{r, echo = TRUE}
 repData <- data %>%
     group_by(interval) %>%
     summarise(avgTotalNSteps = round(mean(steps, na.rm = TRUE))) 
@@ -125,7 +125,7 @@ repData <- data %>%
 3. Create a new dataset that is equal to the original dataset but with 
 the missing data filled in.
 
-```{r}
+```{r, echo = TRUE}
 dataImp <- data
 dataImp$steps_imp <- dataImp$steps
 imp <- is.na(dataImp$steps_imp)
@@ -137,7 +137,7 @@ dataImputed <- dataImp %>% select("steps" = steps_imp, date, interval)
 
 4. Make a histogram of the total number of steps taken each day. 
 
-```{r}    
+```{r, echo = TRUE}    
 dataStepsImp <- dataImputed %>%
     group_by(date) %>%
     summarise(totalStepsImp = sum(steps))
@@ -153,7 +153,7 @@ ggplot(dataStepsImp, aes(x = totalStepsImp)) +
 
 Calculate and report the mean and median total number of steps taken per day. 
 
-```{r}
+```{r, echo = TRUE}
 dataStepsImp_m <- dataStepsImp %>% 
     summarise(meanStepsImp = mean(totalStepsImp, na.rm = TRUE), 
               medianStepsImp = median(totalStepsImp, na.rm = TRUE))
@@ -162,7 +162,7 @@ print(dataStepsImp_m)
 
 Compare with the values from the first part of the assignment
 
-```{r}
+```{r, echo = TRUE}
 print(dataSteps_m)
 ```
 
@@ -176,7 +176,7 @@ of the assignment.
 1. Create a new factor variable in the dataset with two levels - "weekday" 
 and "weekend" indicating whether a given date is a weekday or weekend day.
 
-```{r}
+```{r, echo = TRUE}
 dataImputed$weekday <- weekdays(dataImputed$date)
 dataImputed$weekday <- ifelse(dataImputed$weekday %in% c("Saturday","Sunday"), 
                            "Weekend", "Weekday")
@@ -187,7 +187,7 @@ dataImputed$weekday <- as.factor(dataImputed$weekday)
 5-minute interval (x-axis) and the average number of steps taken, 
 averaged across all weekday days or weekend days (y-axis).
 
-```{r}
+```{r, echo = TRUE}
 dataCompare <- dataImputed %>% 
     group_by(interval, weekday) %>%
     summarise(avgSteps = mean(steps))
